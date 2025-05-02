@@ -2,6 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = [
 #     "llm==0.24.2",
+#     "llm-anthropic==0.15.1",
 #     "marimo",
 #     "mohtml==0.1.7",
 #     "pydantic==2.11.3",
@@ -32,18 +33,9 @@ def _():
 
 @app.cell
 def _(llm):
-    llm.get_models()
-    return
-
-
-@app.cell
-def _(llm):
     model = llm.get_model("gpt-4o-mini")
 
-    resp = model.prompt(
-        "Write me a haiku about Python",
-        system="Answer like a pirate"
-    )
+    resp = model.prompt("Write me a haiku about Python")
     return model, resp
 
 
@@ -62,7 +54,7 @@ def _(model):
 
     class Haikus(BaseModel):
         topic: str
-        haikus: list[str]
+        haikus: list[Haikus]
 
     out = model.prompt("Haiku about Python", schema=Haikus)
     return BaseModel, out
@@ -77,8 +69,14 @@ def _(out):
 
 
 @app.cell
-def _(llm):
-    async_model = llm.get_async_model("gpt-4o")
+def _(model):
+    convo = model.conversation()
+
+    _ = convo.prompt("Give me a haiku about Python")
+    print(_.text())
+    print("\n")
+    _ = convo.prompt("Give me another one about Snakes")
+    print(_.text())
     return
 
 
