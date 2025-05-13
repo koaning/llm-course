@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.13.2"
+__generated_with = "0.13.6"
 app = marimo.App(width="medium")
 
 
@@ -54,7 +54,7 @@ def _(model):
 
     class Haikus(BaseModel):
         topic: str
-        haikus: list[Haikus]
+        haikus: list[Haiku]
 
     out = model.prompt("Haiku about Python", schema=Haikus)
     return BaseModel, out
@@ -85,12 +85,6 @@ def _(mo, model):
     conversation = model.conversation()
     chat_widget = mo.ui.chat(lambda messages: conversation.prompt(messages[-1].content))
     chat_widget
-    return (chat_widget,)
-
-
-@app.cell
-def _(chat_widget):
-    chat_widget.value[1].content
     return
 
 

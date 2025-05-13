@@ -14,7 +14,7 @@
 
 import marimo
 
-__generated_with = "0.13.2"
+__generated_with = "0.13.6"
 app = marimo.App(width="medium")
 
 
@@ -22,7 +22,6 @@ app = marimo.App(width="medium")
 def _():
     import marimo as mo
     from diskcache import Cache
-    from smartfunc import backend, get_backend_models
     from dotenv import load_dotenv
     import llm
 
@@ -78,7 +77,12 @@ def _(cache):
 def _(stream):
     import polars as pl
 
-    df_stream = pl.DataFrame(stream).group_by("prompt", "inputs").agg(pl.col("result").explode())
+    df_stream = (
+        pl.DataFrame(stream)
+            .group_by("prompt", "inputs")
+            .agg(pl.col("result").explode())
+    )
+
     annot_stream = (_ for _ in 
         df_stream
           .join(df_stream, on=["inputs"], how="left")
@@ -123,16 +127,31 @@ def _(btn_left, btn_right, btn_skip, get_example, mo):
 
 
 @app.cell
-def _():
-    return
-
-
-@app.cell
 def _(mo, update):
     btn_left = mo.ui.button(label="left", keyboard_shortcut="Ctrl-j", on_change=lambda d: update("left"))
     btn_skip = mo.ui.button(label="skip", keyboard_shortcut="Ctrl-k", on_change=lambda d: update("skip"))
     btn_right = mo.ui.button(label="right", keyboard_shortcut="Ctrl-l", on_change=lambda d: update("right"))
     return btn_left, btn_right, btn_skip
+
+
+@app.cell
+def _(mo):
+    get_state, set_state = mo.state([])
+    return get_state, set_state
+
+
+app._unparsable_cell(
+    r"""
+    get_state()vs
+    """,
+    name="_"
+)
+
+
+@app.cell
+def _(get_state, set_state):
+    set_state(get_state() + [1])
+    return
 
 
 @app.cell
@@ -151,16 +170,6 @@ def _(annot_stream, mo):
 @app.cell
 def _(get_annot):
     get_annot()
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
     return
 
 
